@@ -370,7 +370,6 @@ public struct ImageMetadata {
             let cropRect = CGRect(x: normalizedX, y: normalizedY,
                                   width: normalizedWidth, height: normalizedHeight)
 
-            cameraButton.isEnabled = false
             requestImage(with: self.albumView.phAsset, cropRect: cropRect) { [weak self] (asset, image) in
                 guard let self = self else { return }
                 self.delegate?.fusumaImageSelected(image, source: self.mode)
@@ -381,7 +380,6 @@ public struct ImageMetadata {
                 let metaData = self.getMetaData(asset: asset)
 
                 self.delegate?.fusumaImageSelected(image, source: self.mode, metaData: metaData)
-                self.cameraButton.isEnabled = true
             }
         } else {
             delegate?.fusumaImageSelected(view.image, source: mode)

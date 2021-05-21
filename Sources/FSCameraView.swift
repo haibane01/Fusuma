@@ -157,9 +157,14 @@ final class FSCameraView: UIView, UIGestureRecognizerDelegate {
         guard let imageOutput = imageOutput else {
             return
         }
-
+        sender.isEnabled = false
         DispatchQueue.global(qos: .default).async(execute: { () -> Void in
-            guard let videoConnection = imageOutput.connection(with: AVMediaType.video) else { return }
+            guard let videoConnection = imageOutput.connection(with: AVMediaType.video) else {
+                DispatchQueue.main.async(execute: { () -> Void in
+                    sender.isEnabled = true
+                })
+                return
+            }
 
             imageOutput.captureStillImageAsynchronously(from: videoConnection) { (buffer, error) -> Void in
                 self.stopCamera()
@@ -171,6 +176,7 @@ final class FSCameraView: UIView, UIGestureRecognizerDelegate {
                     let delegate = self.delegate,
                     let videoLayer = self.videoLayer
                 else {
+                    sender.isEnabled = true
                     return
                 }
 
@@ -184,6 +190,7 @@ final class FSCameraView: UIView, UIGestureRecognizerDelegate {
                                       height: rect.size.height * height)
 
                 guard let img = cgImage.cropping(to: cropRect) else {
+                    sender.isEnabled = true
                     return
                 }
 
@@ -191,7 +198,6 @@ final class FSCameraView: UIView, UIGestureRecognizerDelegate {
 
                 DispatchQueue.main.async(execute: { () -> Void in
                     delegate.cameraShotFinished(croppedUIImage)
-
                     if fusumaSavesImage {
                         self.saveImageToCameraRoll(image: croppedUIImage)
                     }
@@ -201,6 +207,7 @@ final class FSCameraView: UIView, UIGestureRecognizerDelegate {
                     self.device        = nil
                     self.imageOutput   = nil
                     self.motionManager = nil
+                    sender.isEnabled = true
                 })
             }
         })
